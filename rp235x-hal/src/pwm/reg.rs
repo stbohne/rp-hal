@@ -67,10 +67,19 @@ pub(super) unsafe trait RegisterInterface {
             .modify(|_, w| unsafe { w.int().bits(value) });
     }
     #[inline]
+    fn read_div_int(&self) -> u8 {
+        self.ch().div().read().int().bits()
+    }
+
+    #[inline]
     fn write_div_frac(&mut self, value: u8) {
         self.ch()
             .div()
             .modify(|_, w| unsafe { w.frac().bits(value) });
+    }
+    #[inline]
+    fn read_div_frac(&self) -> u8 {
+        self.ch().div().read().frac().bits()
     }
 
     #[inline]

@@ -393,10 +393,22 @@ where
         self.regs.write_div_int(value)
     }
 
+    /// Get the integer part of the clock divider
+    #[inline]
+    pub fn get_div_int(&self) -> u8 {
+        self.regs.read_div_int()
+    }
+
     /// Sets the fractional part of the clock divider
     #[inline]
     pub fn set_div_frac(&mut self, value: u8) {
         self.regs.write_div_frac(value)
+    }
+
+    /// Sets the fractional part of the clock divider
+    #[inline]
+    pub fn get_div_frac(&self) -> u8 {
+        self.regs.read_div_frac()
     }
 
     /// Get the counter register value
