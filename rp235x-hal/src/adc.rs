@@ -169,7 +169,7 @@
 //! }
 //! ```
 
-use core::marker::PhantomData;
+use core::{convert::Infallible, marker::PhantomData};
 // Embedded HAL 1.0.0 doesn't have an ADC trait, so use the one from 0.2
 use embedded_hal_0_2::adc::{Channel, OneShot};
 
@@ -455,6 +455,27 @@ impl Adc {
     /// This implies that any previous conversion has finished.
     pub fn is_ready(&self) -> bool {
         self.device.cs().read().ready().bit_is_set()
+    }
+
+    /// Starts a one-shot conversion on the specified channel
+    /// if the ADC is ready. Returns `nb::Error::WouldBlock`
+    /// if the ADC is not ready. On success, the conversion result
+    /// can be retrieved by calling [`Adc::read_single()`] when
+    /// [`Adc::is_ready()`] returns `true`.
+    /// 
+    /// _See also_: [`Adc::read()`], [`Adc::wait_ready()`] for blocking operations.
+    pub fn start_oneshot<SRC>(&self, pin: &mut SRC) -> nb::Result<(), Infallible>
+    where
+        SRC: AdcChannel,
+    {
+        if !self.is_ready() {
+            return Err(nb::Error::WouldBlock);
+        }
+        let chan = pin.channel();
+        self.device
+            .cs()
+            .modify(|_, w| unsafe { w.ainsel().bits(chan).start_once().set_bit() });
+        Ok(())
     }
 
     /// Perform a blocking conversion on the specified channel.
